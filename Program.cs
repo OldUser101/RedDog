@@ -16,6 +16,16 @@
         {
             Console.ForegroundColor = ConsoleColor.Gray;
             ShowTitle();
+            Hand h = new Hand();
+            while (true) 
+            {
+                h.LoadHand();
+                Console.WriteLine(h.ToString());
+                Console.ReadLine();
+                h.Reveal();
+                Console.WriteLine(h.ToString());
+                Console.ReadLine();
+            }
         }
     }
 }
