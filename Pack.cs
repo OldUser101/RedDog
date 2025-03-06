@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RedDog
+﻿namespace RedDog
 {
     public class Pack
     {
-        private Card[] cards = new Card[0];
-        int nextCard;
+        public Card[] Cards { get; private set; } = new Card[0];
+        public int NextCard { get; private set; }
 
         private readonly Func<int, int, int>? scoreFunc;
 
@@ -25,7 +19,7 @@ namespace RedDog
 
         public void ShuffleCards()
         {
-            Card[] cards = this.cards;
+            Card[] cards = this.Cards;
             Card[] newCards = new Card[52];
 
             Random r = new Random();
@@ -65,34 +59,34 @@ namespace RedDog
                 newCards[i] = selectedCard;
             }
 
-            this.cards = newCards;
+            this.Cards = newCards;
         }
 
         public void ResetCards()
         {
-            cards = new Card[52];
+            Cards = new Card[52];
             for (int i = 0; i < 52; i++)
             {
-                cards[i] = new Card(i % 13, i % 4, scoreFunc);
+                Cards[i] = new Card(i % 13, i % 4, scoreFunc);
             }
 
-            this.nextCard = 0;
+            this.NextCard = 0;
         }
 
         public List<Card> GetCards(int n)
         {
-            if (this.nextCard + n >= 52) 
+            if (this.NextCard + n >= 52)
             {
                 ShuffleCards();
-                this.nextCard = 0;
+                this.NextCard = 0;
             }
 
             List<Card> nextCard = new List<Card>();
 
-            for (int i = 0; i < n; i++) 
+            for (int i = 0; i < n; i++)
             {
-                nextCard.Add(this.cards[this.nextCard]);
-                this.nextCard++;
+                nextCard.Add(this.Cards[this.NextCard]);
+                this.NextCard++;
             }
 
             return nextCard;

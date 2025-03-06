@@ -1,77 +1,74 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RedDog
+﻿namespace RedDog
 {
-    public struct HandResult {
+    public struct HandResult
+    {
         public int spread;
         public bool isPush;
+        public bool win;
         public int payout;
     };
 
     public class Hand
     {
-        private Card LowerCard = new Card(0, 0);
-        private Card MiddleCard = new Card(0, 0);
-        private Card UpperCard = new Card(0, 0);
+        public Card LowerCard { get; private set; } = new Card(0, 0);
+        public Card MiddleCard { get; private set; } = new Card(0, 0);
+        public Card UpperCard { get; private set; } = new Card(0, 0);
 
-        private bool revealed;
-        private Pack p;
+        public bool Revealed { get; private set; }
+        public Pack Pack { get; private set; }
 
-        public Hand() 
+        public Hand()
         {
-            this.p = new Pack(autoshuffle:true);
-            this.revealed = false;
+            this.Pack = new Pack();
+
+            // Shuffle 5 times
+            for (int i = 0; i < 5; i++)
+            {
+                Pack.ShuffleCards();
+            }
+
+            this.Revealed = false;
         }
 
-        private static int SortCards(Card a, Card b) 
+        public void LoadHand()
         {
-            if (a.Rank > b.Rank)
-            {
-                return 1;
-            }
-            else if (a.Rank < b.Rank)
-            {
-                return -1;
-            }
-            else 
-            {
-                return 0;
-            }
-        }
-
-        public void LoadHand() 
-        {
-            List<Card> c = p.GetCards(3);
-
-            c.Sort(SortCards);
+            List<Card> c = Pack.GetCards(3);
 
             this.LowerCard = c[0];
             this.MiddleCard = c[1];
             this.UpperCard = c[2];
-            this.revealed = false;
-        }
 
-        public void Reveal() 
-        {
-            this.revealed = true;
-        }
-
-        public HandResult GetResult() 
-        {
-            if (!revealed) 
+            if (this.LowerCard.Rank > this.UpperCard.Rank)
             {
-                throw new Exception("Not revealed");
+                Card cu = this.UpperCard;
+                this.UpperCard = this.LowerCard;
+                this.LowerCard = cu;
             }
 
+            this.Revealed = false;
+        }
+
+        public void Reveal()
+        {
+            this.Revealed = true;
+        }
+
+        public HandResult GetResult()
+        {
             HandResult hr = new HandResult();
 
             hr.spread = UpperCard.Rank - LowerCard.Rank - 1;
             hr.isPush = false;
             hr.payout = 1;
+
+            if (LowerCard.Rank < MiddleCard.Rank && MiddleCard.Rank < UpperCard.Rank)
+            {
+                hr.win = true;
+            }
+            else
+            {
+                hr.win = false;
+            }
 
             if (hr.spread == 0)
             {
@@ -83,12 +80,12 @@ namespace RedDog
                 hr.isPush = true;
                 hr.payout = 0;
             }
-            else if (hr.spread == -1 && MiddleCard.Rank == UpperCard.Rank) 
+            else if (hr.spread == -1 && MiddleCard.Rank == UpperCard.Rank)
             {
                 hr.payout = 11;
             }
 
-            switch (hr.spread) 
+            switch (hr.spread)
             {
                 case 1:
                     hr.payout = 5;
@@ -106,11 +103,11 @@ namespace RedDog
 
         public override string ToString()
         {
-            if (revealed)
+            if (Revealed)
             {
                 return $"{LowerCard.RankAsString()} {MiddleCard.RankAsString()} {UpperCard.RankAsString()}";
             }
-            else 
+            else
             {
                 return $"{LowerCard.RankAsString()} ????? {UpperCard.RankAsString()}";
             }
